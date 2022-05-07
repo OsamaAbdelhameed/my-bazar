@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/common/theme_helper.dart';
-import 'package:flutter_login_ui/pages/home.dart';
 import 'package:flutter_login_ui/pages/widgets/header_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -22,6 +21,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   bool checkedValue = false;
   bool checkboxValue = false;
+
+  // firebase
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // string for displaying the error Message
   String? errorMessage;
@@ -170,8 +172,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                 "Mobile Number", "Enter your mobile number"),
                             keyboardType: TextInputType.phone,
                             validator: (val) {
-                              if (!(val!.isEmpty) &&
-                                  !RegExp(r"^(\d+)*$").hasMatch(val)) {
+                              if (val!.isEmpty) {
+                                return ("Please Enter Your Mobile number");
+                              }
+                              if (!RegExp(r"^(\d+)*$").hasMatch(val)) {
                                 return "Enter a valid phone number";
                               }
                               return null;
@@ -401,7 +405,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void signUp(String email, String password) async {
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseAuth.instance
+        await _auth
             .createUserWithEmailAndPassword(email: email, password: password)
             .then((value) => {postDetailsToFirestore()})
             .catchError((e) {
@@ -442,7 +446,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     // sedning these values
 
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-    User? user = await FirebaseAuth.instance.currentUser;
+    User? user = await _auth.currentUser;
 
     UserModel userModel = UserModel();
 
@@ -459,6 +463,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
     Fluttertoast.showToast(msg: "Account created successfully :) ");
 
     Navigator.pushAndRemoveUntil((context),
-        MaterialPageRoute(builder: (context) => Home()), (route) => false);
+        MaterialPageRoute(builder: (context) => LoginPage()), (route) => false);
   }
 }
