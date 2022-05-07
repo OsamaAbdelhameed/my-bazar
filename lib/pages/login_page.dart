@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/common/theme_helper.dart';
-import 'package:flutter_login_ui/pages/home.dart';
+import '../services/auth.dart';
 
 import 'forgot_password_page.dart';
 import 'registration_page.dart';
@@ -207,15 +207,17 @@ class _LoginPageState extends State<LoginPage> {
 
   // login function
   void signIn(String email, String password) async {
+    dynamic userid;
     if (_formKey.currentState!.validate()) {
       try {
         await _auth
             .signInWithEmailAndPassword(email: email, password: password)
-            .then((uid) => {
-                  Fluttertoast.showToast(msg: "Login Successful"),
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => Home())),
-                });
+            .then((_auth) => AuthService().userFromFirebaseUser(_auth.user));
+        // .then((uid) => userid = uid
+        //   Navigator.of(context).pushReplacement(
+        //       MaterialPageRoute(builder: (context) => Home())),
+        // );
+        Fluttertoast.showToast(msg: "Login Successful");
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":

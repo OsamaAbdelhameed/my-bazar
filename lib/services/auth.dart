@@ -1,11 +1,28 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_login_ui/models/user.dart';
 
 class AuthService {
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // sign in with email and password
+  // create user obj based on firebase user
+  UserModel userFromFirebaseUser(User? user) {
+    return (user != null) ? UserModel(uid: user.uid) : UserModel(uid: null);
+  }
 
-  // sign in with phone number
+  // auth change user stream
+  Stream<UserModel> get user {
+    return _auth
+        .authStateChanges()
+        // .map((User user) => _userFromFirebaseUser(user));
+        .map(userFromFirebaseUser);
+  }
 
-  // sign in with gmail
+  Future signOut() async {
+    try {
+      return await _auth.signOut();
+    } catch (error) {
+      print(error.toString());
+      return null;
+    }
+  }
 }
